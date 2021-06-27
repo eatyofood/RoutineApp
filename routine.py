@@ -1,3 +1,23 @@
+'''
+-------------------------------------TEST MODE-------------------------------------
+'''
+# this just speeds routine up so you dont have to wait through bullshit
+
+TEST = True
+
+# normal conditions
+WT            = 1   # normal default param should be 1 second
+SIXTY_SECONDS = 60    # normal defalut should be 60 
+
+if TEST == True:
+    WT            = 0.1   # normal default param should be 180 (seconds OR 3 minutes) this is for making bed and coffee and breath work 
+    SIXTY_SECONDS = 1   # normal defalut should be 60 
+'''
+-------------------------------------TEST MODE-------------------------------------
+'''
+
+
+
 from datetime import datetime
 import time
 import os
@@ -11,10 +31,10 @@ import pyttsx3
 warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 import pretty_errors
 import Routine_config
-
-
 from pydub import AudioSegment
 from pydub.playback import play
+
+
 
 sound = AudioSegment.from_mp3('soothing alarm.mp3')
 
@@ -199,7 +219,7 @@ def select_routine():
 
 
 
-
+    print('ROUTINE:........................ ',routines[which])
     routine_path = rpath+routines[which]
     df = pd.read_csv(routine_path)
 
@@ -308,7 +328,7 @@ while gotta_y == False:
     print('')
 
     # timmer weight or wait for testing purposes ( because waiting is boring )
-    WT = 0.01
+    
 
 
     #while ('y' not in bth) or ('n'not in bth):
@@ -320,7 +340,7 @@ while gotta_y == False:
     print('')
     print('')
     print('')
-    input('cool now how do you feel? (just press enter this does nothing) ') 
+    feeling_one = input('cool now how do you feel? (just press enter this does nothing) ') 
 
 
     ### insert habit log update logic here
@@ -344,7 +364,7 @@ while gotta_y == False:
 
 
 
-    
+    print('make bed')
     for i in trange(180):
         time.sleep(WT)
 
@@ -356,12 +376,13 @@ while gotta_y == False:
     did_it  = False
     while keep_on == False:
         mkbd = str(input('did you make your bed? y/n:')).lower()
-        if ('y' in mkbd ):
+        if 'y' in mkbd :
             keep_on = True
             did_it  = True  
-
+            print('good job!')
         if 'n' in mkbd:
             keep_on = True
+            print('boo try again')
         else:
             print(' sorry thats not an option:')
 
@@ -382,6 +403,10 @@ while gotta_y == False:
 
 
     
+    print('===========')
+    print('make coffee')
+    print('===========')
+
 
     for i in trange(180):
         time.sleep(WT)
@@ -396,6 +421,13 @@ while gotta_y == False:
     '''
     ---------------------------BREATH BED & COFFEE PART END---------------------------
     '''
+    print('press enter to continue')
+    input('push any key to continue...')
+    pretty_message('One Goal')
+    print('====================[to rule them all]====================')
+    print('Whats one Goal for today if you could only accomplish one thing?')
+    one_goal_for_today  = str(input('Todays Highest Priority:'))
+
 
 
 
@@ -407,9 +439,12 @@ while gotta_y == False:
             df['STATUS'][i] = 'WORKING'
             task = df['TASK'][i]
             minute_limit= df['TIME_LIMIT'][i]
-            limit       = df['TIME_LIMIT'][i]  #* 60
+            limit       = df['TIME_LIMIT'][i]  * SIXTY_SECONDS
             #play alarm tone
-            play(sound,)
+            if TEST == True:
+                print('*dinggggggggggggggggggggggggggggggggggggggggggggggg')
+            else:
+                play(sound,)
 
             print(df)
 
@@ -481,7 +516,7 @@ di['Days_in_row']   = today_count
 
 
 #di['Workout_Log']       = 
-di['Goal']              = str(input('whats one goal for today?'))
+di['Goal']              = one_goal_for_today 
 di['Goal_Accomplished'] = False
 # print most recent jorn entrys:
 print(cnt_df['Captains_Log'].tail())
