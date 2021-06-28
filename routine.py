@@ -1,3 +1,7 @@
+## TODO:
+### - add calandar habit time slot at the end, after workout. 
+
+
 '''
 -------------------------------------TEST MODE-------------------------------------
 '''
@@ -17,7 +21,7 @@ if TEST == True:
 '''
 
 
-
+import threading
 from datetime import datetime
 import time
 import os
@@ -57,6 +61,131 @@ print("|  _ < (_) | |_| | |_| | | | |  __/   | |__| |_| |  _|  __/")
 print("|_| \_\___/ \__,_|\__|_|_| |_|\___|___|_____\__, |_|  \___|")
 print("                                 |_____|    |___/          ")
 print('-------------------------#GoodLifeApp------------------------')
+
+
+
+
+'''
+ROUTINE TASK FUNCTIONS >>------>
+     - and so marks the begining of keeping custom task_functions in a dictionary , 
+'''
+
+
+
+def arbitrary_function():
+    for i in range(5):
+        print('dookie dookie dookie dookie dookie dookie dookie dookie')
+
+def meditate(test=False,thing=True):
+    
+    os.system('figlet ==Meditation==')
+
+    print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+    print('')
+    print(' =============Welcome! you are doing this!=============')
+    print('      - you will gain full control of your emotions')
+    print('      - learn to live in the peace that surpasses all understanding')
+    print('      - grow grey matter in your brain')
+    print('      - gain full control over your ADHD')
+    print('      - grow in self control...')
+    print(' - i want to get 30 full days of doing 20 minutes before advancing ')
+    print(' - sit up in a downhill posture')
+    print(' - no distractions , no vape ')
+
+    print('')
+    input('are you ready')
+    
+    #time_limit = meditation_schedule_df.iloc[days_on_so_far]
+
+    def play_playlist():
+        playlist   = '/home/brando/Downloads/Holosync/Holosync-Awakening_Level_2/step_one.xspf'
+        os.system(f'vlc {playlist}')
+
+
+    minute     = 60
+    if test == True:
+        minute = 1
+    time_limit = 20 * minute
+    
+
+    def count_down():
+        
+        
+        
+        # SO HERE YOU CHECK IF THERE IS A SCHEDULE SHEET 
+        #     - check if there is a log
+        #     - if so then you pull time limit from schedule
+        #          - based on how many days in a row you have
+        #     - update a log 
+
+
+        for s in trange(time_limit):
+            time.sleep(1)
+        play(sound)
+
+    if (__name__ == "__main__") and (thing == True):
+        # creating thread
+        t1 = threading.Thread(target=count_down)#, args=(0,))
+        t2 = threading.Thread(target=play_playlist)#, args=(0,))
+
+        # starting thread 1
+        t1.start()
+        # starting thread 2
+        t2.start()
+
+        # wait until thread 1 is completely executed
+        t1.join()
+        # wait until thread 2 is completely executed
+        t2.join()
+
+        # both threads completely executed
+        print("Done!")
+    
+
+    med_log_dic = {
+        'Date' : str(datetime.now()).split('.')[0],
+        'time' : time_limit,
+        'log'  : str(input('is there anything you want to jot down ?:'))
+    }
+
+    
+
+    # NOW UPDATE A LOG WITH SCHEDULE
+    ml_path = 'habit_data/meditation_log.txt'
+
+    with open(ml_path,'a') as f:
+        f.write(str(med_log_dic)+'\n')
+
+
+
+
+
+
+task_functions = { 
+                'meditate'           : meditate,
+                'arbitrary_function' : arbitrary_function
+} 
+
+
+print(task_functions)
+
+
+
+
+
+
+
+
+
+'''
+     >>--------------------------------------------->
+'''
+
+def say(text):
+    engine.say(text)
+    engine.runAndWait()
+
+
 
 def gratitude(Routine_config):
     #THANKFUL PART
@@ -333,8 +462,11 @@ while gotta_y == False:
 
     #while ('y' not in bth) or ('n'not in bth):
     input('                                ...are you ready?')
+    three_mins = 180
+    if TEST == True:
+        three_mins = 18
 
-    for i in trange(180):
+    for i in trange(three_mins):
         time.sleep(WT)
     
     print('')
@@ -376,11 +508,11 @@ while gotta_y == False:
     did_it  = False
     while keep_on == False:
         mkbd = str(input('did you make your bed? y/n:')).lower()
-        if 'y' in mkbd :
+        if ('y' in mkbd) or ('y' == mkbd):
             keep_on = True
             did_it  = True  
             print('good job!')
-        if 'n' in mkbd:
+        elif 'n' in mkbd:
             keep_on = True
             print('boo try again')
         else:
@@ -438,28 +570,45 @@ while gotta_y == False:
         for i in trange(len(df)):
             df['STATUS'][i] = 'WORKING'
             task = df['TASK'][i]
-            minute_limit= df['TIME_LIMIT'][i]
-            limit       = df['TIME_LIMIT'][i]  * SIXTY_SECONDS
-            #play alarm tone
-            if TEST == True:
-                print('*dinggggggggggggggggggggggggggggggggggggggggggggggg')
+            #
+            #
+            #
+            #
+            # If The Task Is Not In The Task Dictionary - run timmer and routine as normal 
+            if task not in task_functions.keys():
+                minute_limit= df['TIME_LIMIT'][i]
+                limit       = df['TIME_LIMIT'][i]  * SIXTY_SECONDS
+                #play alarm tone
+                if TEST == True:
+                    print('*dinggggggggggggggggggggggggggggggggggggggggggggggg')
+                else:
+                    play(sound,)
+
+                print(df)
+
+                #speach engine
+                engine.say(task)
+                engine.runAndWait()
+                speak_time(minute_limit)
+                print('==========++++++++===========[{}]==========++++++++=========='.format(task))
+                #print(task)
+                pretty_message(task)
+                
+                for m in trange(limit):
+                    time.sleep(1)
+                #playsound.playsound('algos/itstime.mp3')
+                #os.system('printf\a')
+            #
+            #
+            #
+            #
+            # IF IT IS THEN YOU GET THE CUSTOM TASK FUNCTION 
             else:
-                play(sound,)
+                
+                task_functions[task]()  # Just Make A Parameter Dictionary
 
-            print(df)
 
-            #speach engine
-            engine.say(task)
-            engine.runAndWait()
-            speak_time(minute_limit)
-            print('==========++++++++===========[{}]==========++++++++=========='.format(task))
-            #print(task)
-            pretty_message(task)
-            
-            for m in trange(limit):
-                time.sleep(1)
-            #playsound.playsound('algos/itstime.mp3')
-            #os.system('printf\a')
+
             df['STATUS'][i] = 'COMPLEATE'
 
             
@@ -514,8 +663,6 @@ di['Days_in_row']   = today_count
 
 #INPUTS
 
-
-#di['Workout_Log']       = 
 di['Goal']              = one_goal_for_today 
 di['Goal_Accomplished'] = False
 # print most recent jorn entrys:
@@ -549,7 +696,50 @@ else:
 
 
 
+
+
+
+# Calandar Portion
+os.system('figlet ==Meditation==')
+
+print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+
+print('work on calandar:')
+say('work on calandar')
+
+cal_path   = 'habit_data/calandar_habit.txt'
+time_limit = 180
+
+if test == True:
+    time_limit = 1
+
+for s in trange(time_limit):
+    time.sleep(1)
+
+if test == False:
+    play(sound)
+
+did_cal = False
+say('did you update the calandar?')
+ync = str(input('did you update calandar y/n?:')).lower()
+if ('y' in ync) or ( 'y' == ync):
+    did_cal = True
+
+cal_dic = {
+    'Date'  : str(datetime.now()).split('.')[0],
+    'Did_it': did_cal,
+    'goal'  : one_goal_for_today,
+    'yester': str(input('did you accomplish yesterdays goal?:'))
+    
+}
+with open(cal_path,'a') as f:
+    f.write(str(cal_dic)+'\n')
+
+
 #AudioSegment.from_mp3('Lagwagon_Lets_Talk_About_Feelings__02__Gun_In_Your_Hand.mp3')
+
+
+
 
 
 sound = AudioSegment.from_mp3('ALARM_I_BEILIEVE.mp3')
