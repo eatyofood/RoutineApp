@@ -5,11 +5,12 @@
 '''
 -------------------------------------TEST MODE-------------------------------------
 '''
+
 # this just speeds routine up so you dont have to wait through bullshit
+other_bullshit = False
+TEST           = True
 
-TEST = True
-
-# normal conditions
+# normal conditions 
 WT            = 1   # normal default param should be 1 second
 SIXTY_SECONDS = 60    # normal defalut should be 60 
 
@@ -19,8 +20,8 @@ if TEST == True:
 '''
 -------------------------------------TEST MODE-------------------------------------
 '''
-
-
+#import HabitApp
+from HabitApp import habitlog, yn_quest,tag_alongs
 import threading
 from datetime import datetime
 import time
@@ -76,37 +77,86 @@ def arbitrary_function():
     for i in range(5):
         print('dookie dookie dookie dookie dookie dookie dookie dookie')
 
-def meditate(test=False,thing=True):
+def meditate(test=TEST,thing=True):
     
     os.system('figlet ==Meditation==')
 
     print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-    print('')
-    print(' =============Welcome! you are doing this!=============')
-    print('      - you will gain full control of your emotions')
-    print('      - learn to live in the peace that surpasses all understanding')
-    print('      - grow grey matter in your brain')
-    print('      - gain full control over your ADHD')
-    print('      - grow in self control...')
-    print(' - i want to get 30 full days of doing 20 minutes before advancing ')
-    print(' - sit up in a downhill posture')
-    print(' - no distractions , no vape ')
+    print('''
+     =============Welcome! you are doing this!=============
+     GOALS:
+        1) 6-6   | 10
+        2) 6-6   | 20
+        3) 4-7-8 | 100
+        
+          - you will gain full control of your emotions
+          - learn to live in the peace that surpasses all understanding
+          - grow grey matter in your brain
+          - gain full control over your ADHD
+          - grow in self control...
+     - i want to get 30 full days of doing 20 minutes before advancing 
+     - sit up in a downhill posture
+     - no distractions , no vape 
+    ''')
 
-    print('')
     input('are you ready')
     
     #time_limit = meditation_schedule_df.iloc[days_on_so_far]
 
+    m_path = 'habit_data/meditation_log.csv'
+    if os.path.exists(m_path):
+        odf = pd.read_csv(m_path,index_col='Date',parse_dates=True)
+        odf['date'] = odf.index.date
+        odf['delta'] = odf['date']- odf['date'].shift()
+        odf['pass']  = odf['delta'] < pd.Timedelta(days=2)
+
+        pd.set_option('display.max_rows',None)
+        pd.set_option('display.max_columns',None)
+        # DAYCOUNT
+        odf['dayz_n_row'] = 0
+        for i in range(len(odf)):
+            if (odf['pass'][i] == True) :
+                
+                odf['dayz_n_row'][i] = odf['dayz_n_row'][i-1] + 1
+            elif  len(odf[odf['date']>(odf['date'][i] - pd.Timedelta(days=7))]) >= 6 :
+                odf['dayz_n_row'][i] = odf['dayz_n_row'][i-1] + 1
+            else:
+                odf['dayz_n_row'][i] = 0 
+
+        dayz_n_row = odf['dayz_n_row'][-1]
+        print('dayz_n_row',dayz_n_row)
+        print(odf) 
+        #os.system('figlet + ==[ {dayz_n_row} ]== +'.format(dayz_n_row))
+
+
+        
     def play_playlist():
         playlist   = '/home/brando/Downloads/Holosync/Holosync-Awakening_Level_2/step_one.xspf'
         os.system(f'vlc {playlist}')
 
+    #MEDITATION TIMELIMIT
 
+    habit_name = 'meditation'
+    plus_path  = '/home/brando/habit_data/'+habit_name +'_count.txt'
+    if not os.path.exists(plus_path):
+        plus = 2
+    else:
+        with open(plus_path,'r') as f:
+            plus = int(f.readlines()[0])
+            print(f'got it right here: {plus}')
+    time_plus = plus
+    with open(plus_path,'w') as f:
+        f.write(str(plus+1))
+
+    if time_plus > 35:
+        time_plus = 36
+    print(time_plus)
     minute     = 60
     if test == True:
         minute = 1
-    time_limit = 20 * minute
+    time_limit = (31 + time_plus )* minute
     
+
 
     def count_down():
         
@@ -149,13 +199,27 @@ def meditate(test=False,thing=True):
     }
 
     
+    med_log_dic['complete'] = True
+    med_log_dic['time_plus']= time_plus
+    mdf                     = pd.DataFrame([med_log_dic])
+    habitlog(mdf,'meditation')
 
     # NOW UPDATE A LOG WITH SCHEDULE
     ml_path = 'habit_data/meditation_log.txt'
 
     with open(ml_path,'a') as f:
         f.write(str(med_log_dic)+'\n')
+    
 
+
+    df = pd.DataFrame([med_log_dic]).set_index('Date')
+
+    if not os.path.exists(m_path):
+        df.to_csv(m_path)
+    else:
+        
+        ndf = odf.append(df)
+        ndf.to_csv(m_path)
 
 
 
@@ -213,7 +277,7 @@ if os.path.exists(save_name):
     print(' ')
     
     # IF YOUR STILL ON A ROLL REMINDS YOU : YOUR STILL ON A ROLL!!
-    if one_day_delt == True:
+    if (one_day_delt == True): #or ( len(cnt_df[cnt_df.index>datetime.now().date() - pd.Timedelta(days=7)]  >= 6  ) ):
         today_count = dayz_n_row + 1
         print('---==WELCOME BACK==---')
         print('YOU HAD {} DAYS IN A ROW!'.format(dayz_n_row))
@@ -433,132 +497,134 @@ while gotta_y == False:
     
     #print(df)
     yn       = 'yup'#str(input('does this look good? type yup:'))
+    
+    one_goal_for_today  = str(input('Todays Highest Priority:'))
+    if other_bullshit == True:
+        '''
+        ------------------------BREATH PART BEGIN------------------------
+        '''
 
-    '''
-    ------------------------BREATH PART BEGIN------------------------
-    '''
+        # BREATHING FIRST  >>----> ======================================================= >>---->  0   ++++++++++++++++++++++++
+        play(sound)
 
-    # BREATHING FIRST  >>----> ======================================================= >>---->  0   ++++++++++++++++++++++++
-    play(sound)
+        ### space loop - all it doese is make space 
+        for i in range(69):
+            print('')
 
-    ### space loop - all it doese is make space 
-    for i in range(69):
+        print('before anything count take ten deep breaths .... ')
+        print('')
+        print('')
+        print('')
+        print('')
+        print('')
+        print('')
+        print('')
+        print('')
         print('')
 
-    print('before anything count take ten deep breaths .... ')
-    print('')
-    print('')
-    print('')
-    print('')
-    print('')
-    print('')
-    print('')
-    print('')
-    print('')
-
-    # timmer weight or wait for testing purposes ( because waiting is boring )
-    
+        # timmer weight or wait for testing purposes ( because waiting is boring )
+        
 
 
-    #while ('y' not in bth) or ('n'not in bth):
-    input('                                ...are you ready?')
-    three_mins = 180
-    if TEST == True:
-        three_mins = 18
+        #while ('y' not in bth) or ('n'not in bth):
+        input('                                ...are you ready?')
+        three_mins = 180
+        if TEST == True:
+            three_mins = 18
 
-    for i in trange(three_mins):
-        time.sleep(WT)
-    
-    print('')
-    print('')
-    print('')
-    feeling_one = input('cool now how do you feel? (just press enter this does nothing) ') 
-
-
-    ### insert habit log update logic here
-
-    
-    habpath = 'habit_data/'
-    # Create Directory If It Doesn't Exist
-    if not os.path.exists(habpath):
-        os.mkdir(habpath)
-    
-    # Update A Log Of Date Times
-    with open(habpath+'breath_before_coffee.txt','a') as f :
-        f.write(str(datetime.now())+'\n')
+        for i in trange(three_mins):
+            time.sleep(WT)
+        
+        print('')
+        print('')
+        print('')
+        feeling_one = input('cool now how do you feel? (just press enter this does nothing) ') 
 
 
-    #  MAKE BED >>----> ======================================================= >>---->  0  ++++++++++++++++++++++++
-    #speach engine
-    engine.say('Make your bed before drinking coffee')
-    engine.runAndWait()
+        ### insert habit log update logic here
+
+        
+        habpath = 'habit_data/'
+        # Create Directory If It Doesn't Exist
+        if not os.path.exists(habpath):
+            os.mkdir(habpath)
+        
+        # Update A Log Of Date Times
+        with open(habpath+'breath_before_coffee.txt','a') as f :
+            f.write(str(datetime.now())+'\n')
+
+
+        #  MAKE BED >>----> ======================================================= >>---->  0  ++++++++++++++++++++++++
+        #speach engine
+        engine.say('Make your bed before drinking coffee')
+        engine.runAndWait()
 
 
 
 
-    print('make bed')
-    for i in trange(180):
-        time.sleep(WT)
+        print('make bed')
+        for i in trange(180):
+            time.sleep(WT)
 
-    #speach engine
-    engine.say('did you do it?')
-    engine.runAndWait()
+        #speach engine
+        engine.say('did you do it?')
+        engine.runAndWait()
 
-    keep_on = False
-    did_it  = False
-    while keep_on == False:
-        mkbd = str(input('did you make your bed? y/n:')).lower()
-        if ('y' in mkbd) or ('y' == mkbd):
-            keep_on = True
-            did_it  = True  
-            print('good job!')
-        elif 'n' in mkbd:
-            keep_on = True
-            print('boo try again')
-        else:
-            print(' sorry thats not an option:')
-
-
-    with open(habpath+'make_bed.txt','a') as f:
-            
-        mkbd_di = str( {'Date':str(datetime.now()),'made_bed':did_it}) + '\n'
-        f.write(mkbd_di)
-    print(' ')
-    print('Cool Habit Jornal Logged')
+        keep_on = False
+        did_it  = False
+        while keep_on == False:
+            mkbd = str(input('did you make your bed? y/n:')).lower()
+            if ('y' in mkbd) or ('y' == mkbd):
+                keep_on = True
+                did_it  = True  
+                print('good job!')
+            elif 'n' in mkbd:
+                keep_on = True
+                print('boo try again')
+            else:
+                print(' sorry thats not an option:')
 
 
-    # COFFEE PART ()()()()()()()()()()()()()()))())()()()()(()()()()(()()()()()()()(()())()())())()()
-    #speach engine
-    engine.say('make coffee')
-    engine.runAndWait()
-    
+        with open(habpath+'make_bed.txt','a') as f:
+                
+            mkbd_di = str( {'Date':str(datetime.now()),'made_bed':did_it}) + '\n'
+            f.write(mkbd_di)
+        print(' ')
+        print('Cool Habit Jornal Logged')
 
 
-    
-    print('===========')
-    print('make coffee')
-    print('===========')
+        # COFFEE PART ()()()()()()()()()()()()()()))())()()()()(()()()()(()()()()()()()(()())()())())()()
+        #speach engine
+        engine.say('make coffee')
+        engine.runAndWait()
+        
 
 
-    for i in trange(180):
-        time.sleep(WT)
-
-    
-
-    # *ding
-    #play(sound)
-    
+        
+        print('===========')
+        print('make coffee')
+        print('===========')
 
 
-    '''
-    ---------------------------BREATH BED & COFFEE PART END---------------------------
-    '''
-    print('press enter to continue')
-    input('push any key to continue...')
-    pretty_message('One Goal')
-    print('====================[to rule them all]====================')
-    print('Whats one Goal for today if you could only accomplish one thing?')
-    one_goal_for_today  = str(input('Todays Highest Priority:'))
+        for i in trange(180):
+            time.sleep(WT)
+
+        
+
+        # *ding
+        #play(sound)
+        
+
+
+        '''
+        ---------------------------BREATH BED & COFFEE PART END---------------------------
+        '''
+        print('press enter to continue')
+        input('push any key to continue...')
+        pretty_message('One Goal')
+        print('====================[to rule them all]====================')
+        print('Whats one Goal for today if you could only accomplish one thing?')
+        
 
 
 
@@ -597,10 +663,20 @@ while gotta_y == False:
                 for m in trange(limit):
                     time.sleep(1)
                 #playsound.playsound('algos/itstime.mp3')
-                #os.system('printf\a')
-            #
-            #
-            #
+                #os.system('printf\a'
+                
+
+                #UPDATE DATABASE
+                try:
+                    hdi = {}
+                    habit = task
+                    hdi['datetime']   = str(datetime.now()).split('.')[0]
+                    hdi['time_limit'] = minute_limit
+                    hdi['complete']   = True
+                    habitlog(pd.DataFrame([hdi]).set_index('datetime'),habit)
+                    hdi
+                except BaseException as e:
+                    print(e)
             #
             # IF IT IS THEN YOU GET THE CUSTOM TASK FUNCTION 
             else:
@@ -700,23 +776,45 @@ else:
 
 
 # Calandar Portion
-os.system('figlet ==Meditation==')
+os.system('figlet ==Calendar==')
 
 print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+print(
+    '''
+    ==========[ Always Keep Calendar Somewhere Visble At Work Space ]==========
+    UPDATE
+        - Calendar
+        - Jornal
+        - Priority Notebook
+    
+    THREE WEEKLY GOALS
+        - Self-Care Goal
+        - Buisness Goal
+        - Social Goal
+    
+    HIGHLIGHTS & SYMBOLS
+        - zootdays
+        - litedays
+        - cleardays
+    '''
 
-print('work on calandar:')
-say('work on calandar')
+)
+
+
+say('update the calandar, priority jornal, and planner')
+say('create a loose schedule based on todays prioritys')
+
 
 cal_path   = 'habit_data/calandar_habit.txt'
-time_limit = 180
+time_limit = 720
 
-if test == True:
+if TEST == True:
     time_limit = 1
 
 for s in trange(time_limit):
     time.sleep(1)
 
-if test == False:
+if TEST == False:
     play(sound)
 
 did_cal = False
@@ -725,20 +823,42 @@ ync = str(input('did you update calandar y/n?:')).lower()
 if ('y' in ync) or ( 'y' == ync):
     did_cal = True
 
+if other_bullshit == False:
+    one_goal_for_today  = str(input('Todays Highest Priority:'))
+
 cal_dic = {
     'Date'  : str(datetime.now()).split('.')[0],
     'Did_it': did_cal,
     'goal'  : one_goal_for_today,
-    'yester': str(input('did you accomplish yesterdays goal?:'))
+    #'yester': #str(input('did you accomplish yesterdays goal?:'))
     
 }
+#UPDATE DATABASE LOG
+cdf = pd.DataFrame([cal_dic])
+habitlog(cdf,'calendar')
+
 with open(cal_path,'a') as f:
     f.write(str(cal_dic)+'\n')
 
+dt = str(datetime.now()).split('.')[0]
+#
 
-#AudioSegment.from_mp3('Lagwagon_Lets_Talk_About_Feelings__02__Gun_In_Your_Hand.mp3')
 
+# DID YOU STICK TO SCHEDULE?
+di = {}
+di['datetime'] = dt
+di['complete'] = False
+yn = yn_quest('did you stick to med sched?')
+if 'y' in yn:
+    di['complete'] = True
+habitlog(pd.DataFrame([di]),'med_schedule_app')
 
+path = '/home/brando/habit_data/accumulation_of_flow.txt'
+with open(path,'r') as f:
+    lines = f.readline()
+    for line in f.readlines():
+            print(line)
+            input('')
 
 
 
