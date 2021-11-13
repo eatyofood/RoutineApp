@@ -1,3 +1,5 @@
+import threading
+
 from datetime import datetime
 import time
 import os
@@ -10,78 +12,12 @@ from pandas.core.common import SettingWithCopyWarning
 import pyttsx3
 warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 import pretty_errors
-import Routine_config
 
 
 from pydub import AudioSegment
 from pydub.playback import play
 
 sound = AudioSegment.from_mp3('soothing alarm.mp3')
-
-
-
-#Establish Paths and THE_MOMENT
-now       = datetime.now() 
-rpath     = 'Routines/'
-save_name = rpath+'#Routine_Log.csv'
-
-
-
-
-print("                        ==Brandons==                       ")
-
-print(" ____             _   _                _           __      ")
-print("|  _ \ ___  _   _| |_(_)_ __   ___    | |   _   _ / _| ___ ")
-print("| |_) / _ \| | | | __| | '_ \ / _ \   | |  | | | | |_ / _ \ ")
-print("|  _ < (_) | |_| | |_| | | | |  __/   | |__| |_| |  _|  __/")
-print("|_| \_\___/ \__,_|\__|_|_| |_|\___|___|_____\__, |_|  \___|")
-print("                                 |_____|    |___/          ")
-print('-------------------------#GoodLifeApp------------------------')
-
-def gratitude(Routine_config):
-    #THANKFUL PART
-    thankful_things = []
-    how_much_grat   = Routine_config.how_much_thankful
-    for i in range(how_much_grat):
-        thing = input('write {} thing your thankful for:'.format(str(i+1)))
-        thankful_things.append(thing)
-    return thankful_things
-
-#print(thankful_things)
-
-#Load Last Archived Routine 
-if os.path.exists(save_name):
-    cnt_df      = pd.read_csv(save_name).set_index('Date')
-    cnt_df.index= pd.to_datetime(cnt_df.index)
-    dayz_n_row  = cnt_df['Days_in_row'][-1] 
-    last_run    = cnt_df.index[-1]
-    run_delta   = now - last_run
-    one_day_delt= run_delta < pd.Timedelta(days=2)
-
-    
-    print('last_run:',last_run) 
-    print('run_delta:',run_delta) 
-    print(' ')
-    
-    # IF YOUR STILL ON A ROLL REMINDS YOU : YOUR STILL ON A ROLL!!
-    if one_day_delt == True:
-        today_count = dayz_n_row + 1
-        print('---==WELCOME BACK==---')
-        print('YOU HAD {} DAYS IN A ROW!'.format(dayz_n_row))
-        print('')
-        print('TODAY WILL BE {}!!'.format(today_count))
-        
-    else:
-        print('good job. get back on that horse and rise into the sun')
-        today_count = 0 
-
-os.system('figlet DAYS_N_ROW:')
-os.system('figlet + ==[ {} ]== +'.format(dayz_n_row))
-
-
-
-
-'''SPEACH TO TEXT ENGINE'''
 
 #INPUTS
 voice_id= 11
@@ -93,6 +29,57 @@ engine.setProperty('voice', 'english+f4')
 engine.setProperty("rate",rate)
 rate   = engine.getProperty('rate')
 #print('rate:',rate)
+
+def say(thing):
+    os.system(f'figlet {thing}')
+    print('-------------------------------------------------------------------------')
+    engine.say(thing)
+    engine.runAndWait()
+
+
+
+
+TEST  = False
+
+if TEST== True:
+    seconds = 1
+else:
+    seconds = 60
+
+now   = str(datetime.now()).split('.')[0]
+
+print('\n \n \n')
+print('      ++++++                   111                  +++++++')
+
+print("                               _.._")
+print("                             .'    '.")
+print("                            (____/`\ \ ")
+print("                           (  |    )  )")
+print("                           )  _\  _/  (")
+print("                 __..---.(`_.'  ` \    )")
+print("                `;-""-._(_( .      `; (")
+print("                /       `-`'--'     ; )")
+print("               /    /  .    ( .  ,| |(")
+print("_.-`'---...__,'    /-,..___.-'--'_| |_)")
+print("'-'``'-.._       ,'  |   / .........'")
+print("       ___``;--'` ;   |   `-`    _  ")
+print("      | __ )  _`_.__.' _ __   __| | ___  _ __  ___ _____ ")              
+print("|_____|  _ \| '__/ _` | '_ \ / _` |/ _ \| '_ \/ __|_____|")
+print("|_____| |_) | | | (_| | | | | (_| | (_) | | | \__ \_____|")
+print("      |____/|_|  \__,_|_| |_|\__,_|\___/|_| |_|___/      ")
+print("")
+print("                         *sexy*                                ")
+os.system('figlet +RoutineAp+')
+print('                              42                            ')
+print("==========================================================")
+time.sleep(3)
+print('')
+import cuties.II
+print("----------------------------------------------------------")
+
+
+
+'''SPEACH TO TEXT ENGINE'''
 
 
 
@@ -106,6 +93,45 @@ def speak_time(num):
     engine.runAndWait()
 
 
+
+def schedual_loop():
+    thing = ""
+    thingli = []
+    while thing.lower() != 'done':
+        shedic= {}
+        thing = str(input('TASK:'))
+        if thing.lower() != 'done':
+            #FIX THIS!
+
+            #OLD--------------------------------------
+            #limit                = int(input('TIMELIMIT:'))
+            #NEW-----------------------------------------
+            limit = None
+
+            while type(limit) != int:
+                try:
+                    limit = int(input('TIME:'))
+                except Exception:
+                    print('thats not an int, try again')
+            print('YEY!')
+
+            shedic['TASK']       = thing
+            shedic['TIME_LIMIT'] = limit
+            if len(thingli) > 0:
+                df = pd.DataFrame(thingli)
+                other_items = df['TIME_LIMIT'].sum()
+                total_time_so_far   = limit + other_items
+                time_delta           = pd.Timedelta(minutes=total_time_so_far) + datetime.now() 
+            else:
+                time_delta           = pd.Timedelta(minutes=limit) + datetime.now() 
+            shedic['ETA']        = str(time_delta.time()).split('.')[0] 
+            thingli.append(shedic)
+            df = pd.DataFrame(thingli)
+            print(df)
+        else:
+            shedf = pd.DataFrame(thingli)
+            
+    return shedf
 
 
 #ARCHIVE FUNCTION
@@ -159,248 +185,246 @@ def archive_data(path,sheet,df):
         print('--there are no new recent headlines to append--')
 
 
-def show_all():
-    rpath = 'Routines/'
-    sheets= [s for s in os.listdir(rpath) if '#' not in s]
-    [print('==============================================\n',sheet,'=====\n',pd.read_csv(rpath+sheet)) for sheet in sheets]
-
-
-def select_routine():
-    rpath    = 'Routines/'
-    routines = os.listdir(rpath)
-    routines = [i for i in routines if '#' not in i]
-    #i want to know how long each routine is.
-
-    times = [pd.read_csv(rpath+routine)['TIME_LIMIT'].sum() for routine in routines]
-
-
-    rdf      = pd.DataFrame(routines,columns=['Routine'])
-
-    rdf['TimeLimit'] = times
-    rdf['Selection'] = rdf.index
-    
-    
-    print('type: [show] to show all the routines')
-    
-    which = None
-    while type(which) != int:
-        print(rdf)
-
-        which = input('which one?')
-        if which == 'show':
-            show_all()
-            which = int(input('which one?'))
-        try:
-            which = int(which)
-        except Exception:
-            print('thats not an optio try again')
-
-
-
-
-    routine_path = rpath+routines[which]
-    df = pd.read_csv(routine_path)
-
-
-    now = datetime.now()
-    df['ETA'] = pd.Timedelta(minutes=df['TIME_LIMIT'][0]) + now
-
-    for i in range(1,len(df)):
-        df['ETA'][i] = pd.Timedelta(minutes=df['TIME_LIMIT'][i]) + df['ETA'][i-1]
-        
-    time_li = [str(i.time()).split('.')[0] for i in df['ETA'] ]
-
-    df['ETA']       = time_li
-
-
-    #make it a routine by eliminating the bull
-    routine = routine_path.replace(rpath,'').replace('.csv','')
-
-    #print(pd.DataFrame(time_li))
-    return df, routine
-
-
-
 def pretty_message(title,message=None):
     os.system('figlet {}'.format(title))
     print('=================================================================')
     if message != None:
         print(message)
 
-def read_through(Routine_config):
-    '''
-    This runs through a list of important things/ mantras / affirmations you want to read in the morning 
-    to start your day right.
 
-    they are generate from a spreadsheet titled '#mantras.csv' add or remove any as you like. 
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXX -THE MAIN SHOW- XXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-    if you want to skip this step open the file Routine_config.py and change read_mantras to False
-    '''
-    mantras = 'Routines/#mantras.csv'
+def the_main_show():
+    # INITIATE PROGRAM
+    yn = ''
+    gotta_y = False
+    while gotta_y == False:
 
-    if Routine_config.read_mantras == True:
-        print('YES!')
-        #cheack if there are mantras
-        if os.path.exists(mantras):
-            madf = pd.read_csv(mantras)
-            if len(madf) > 0:
-                montarchive = []
-                for i in range(len(madf)):
-                    mantrat = madf['title'][i]
-                    message = madf['mantra'][i]
-                    pretty_message(mantrat,message)
-                    #print(mantrat)
-                    #print(message) 
-                    print('')
-                    one_liner = '(' + mantrat + ':' + message + ')'
-                    montarchive.append(one_liner)
-
-                    angknolage = input('press enter')
-            
-                return montarchive
-
-            else:
-                print('there are no mantras in sheet')
-        else: 
-            print('there is no mantra sheet')
-
-
-
-
-# INITIATE PROGRAM
-yn = ''
-gotta_y = False
-while gotta_y == False:
-
-    df,routine = select_routine()
-    
-    #list things you are thankful for
-    thankful_things = gratitude(Routine_config)
-
-    #list of mantras you want to repeate to start the day right!
-    montarchive = read_through(Routine_config)
-    
-    #print(df)
-    yn       = 'yup'#str(input('does this look good? type yup:'))
-    # VOICE 
-    
+        df = pd.read_csv('todo_list_archive/routine.csv') #schedual_loop()
+        #print(df)
+        yn = 'yup'#str(input('does this look good? type yup:'))
+        # VOICE 
         
-    #engine = pyttsx3.init()
-    #voice  = voices[voice_id].id
-    #engine.setProperty("voice",voice)
-    
-    #engine.say("shake. and. bake.            bay. bee!")
-    #engine.runAndWait() 
-    if yn.lower()=='yup':
-        df['STATUS'] = '...'
-        gotta_y = True
-        for i in trange(len(df)):
-            df['STATUS'][i] = 'WORKING'
-            task = df['TASK'][i]
-            minute_limit= df['TIME_LIMIT'][i]
-            limit       = df['TIME_LIMIT'][i]  * 60
-            #play alarm tone
-            play(sound,)
-
-            print(df)
-
-            #speach engine
-            engine.say(task)
-            engine.runAndWait()
-            speak_time(minute_limit)
-            print('==========++++++++===========[{}]==========++++++++=========='.format(task))
-            #print(task)
-            pretty_message(task)
             
-            for m in trange(limit):
-                time.sleep(1)
-            #playsound.playsound('algos/itstime.mp3')
-            #os.system('printf\a')
-            df['STATUS'][i] = 'COMPLEATE'
+        
+        if yn.lower()=='yup':
+            df['STATUS'] = '...'
+            gotta_y = True
+            for i in trange(len(df)):
+                df['STATUS'][i] = 'WORKING'
+                task = df['TASK'][i]
+                minute_limit= df['TIME_LIMIT'][i]
+                limit       = df['TIME_LIMIT'][i] * seconds
 
-            
-print('yey done')
+                # timmer sound
+                if TEST == False:
+                    play(sound)
+                print(df)
+                #speach engine
+                engine.say(task)
+                engine.runAndWait()
+                speak_time(minute_limit)
+                print('==========++++++++===========[{}]==========++++++++=========='.format(task))
+                #print(task)
+                pretty_message(task)
+                
+                if TEST == False:
+                    for m in trange(limit):
+                        time.sleep(1) 
 
-#save the todo list
-df['Datetime'] = pd.to_datetime(str(datetime.now()).split('.')[0])
-df = df.set_index('Datetime')
+                #playsound.playsound('algos/itstime.mp3')
+                #os.system('printf\a')
+                df['STATUS'][i] = 'COMPLEATE'
 
-'''========================[archivefunction]===================='''
-
-
-
-
-
-#SAVE ARCHIVE
-path = 'Routines/'
-sheet= '#routine_archive.csv'
-archive_data(path,sheet,df)
-
-
-
-os.system('figlet DAYS_N_ROW:')
-os.system('figlet + ==[ {} ]== +'.format(today_count))
-print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n \n \n ')
-# SAVE LOG
-os.system('figlet Jornal Entry:')
-#set values for todays log_entrygit
-li = []
-di = {}
-di['Routine']       = routine
-di['Date']          = now.date() 
-di['Days_in_row']   = today_count
-
-#INPUTS
+                
+    print('\nyey done\n')
 
 
-di['Workout_Log']       = str(input('BRO DO YOU EVEN LIFT?:'))
-di['Goal']              = str(input('whats one goal for today?'))
-di['Goal_Accomplished'] = False
-di['Captains_Log']      = str(input('Write a Jornal Entry:'))
-di['Thankful_Thing']    = thankful_things
-di['Montras']           = montarchive
 
-#Transformation into Data Frame
-li.append(di)
-df = pd.DataFrame(li).set_index('Date')
 
-# Save it...
-if not os.path.exists(save_name):
-    df.to_csv(save_name)
-    print('first_copy saved')
-else:
-    odf = pd.read_csv(save_name).set_index('Date')
+    #save the todo list
+    df['Datetime'] = pd.to_datetime(now)
+    df = df.set_index('Datetime')
 
-    # adding some accountability to your goals
-    if 'Goal' in odf.columns:
-        print('yesterdays goal: ',odf['Goal'][-1])
-        goal_status    = str(input('did you accomplish this goal?'))
-        df['Goal_Accomplished'][-1] = goal_status
-
-    ndf = odf.append(df)
-    ndf['Goal_Accomplished'][-1] = goal_status
-    ndf.to_csv(save_name)
-    print('appended')
+    '''========================[archivefunction]===================='''
 
 
 
 
 
-#AudioSegment.from_mp3('Lagwagon_Lets_Talk_About_Feelings__02__Gun_In_Your_Hand.mp3')
+    #INPUTS
+    path = 'todo_list_archive/'
+    sheet= 'todolist_archive.csv'
+    archive_data(path,sheet,df)
 
+
+
+    # ROUTINE ARCHIVE INPUTS
+    rpath          = 'todo_list_archive/routine_archive.csv'
+    di             = {}
+    di['datetime'] = now
+    workout        = input('WORKOUT TYPE ( CC,WC,WU,FL,BN):')
+    di[workout]    = input('REPS                          :')
+    di['jornal']   = input('JORNAL ENTRY                  :')
+    di['day_count']= 1
+    di['dayzNrow'] = 1
+    if os.path.exists(rpath):
+        ordf            = pd.read_csv(rpath).set_index('datetime')
+        ordf.index      = pd.to_datetime(ordf.index)
+        di['day_count'] = ordf['day_count'][-1] + 1 
+
+        if (datetime.now() - ordf.index[-1]) < pd.Timedelta(days=2):
+            di['dayzNrow'] = ordf['dayzNrow'][-1] + 1  
+        daycount = str(di['day_count'])
+        dayznrow = str(di['dayzNrow'])
+
+        os.system(f'figlet DAYCOUNT___:{daycount}')
+        os.system(f'figlet DAYZ_n_ROW:{dayznrow}')
+        print(ordf)
+
+    # SAVE ROUTINE ARCHIVE 
+    rdf    = pd.DataFrame([di]).set_index('datetime')
+
+    if not os.path.exists(rpath):
+        rdf.to_csv(rpath)
+    else:
+        ordf = pd.read_csv(rpath).set_index('datetime')
+        nrdf = ordf.append(rdf)
+        nrdf.to_csv(rpath)
+
+def play_sound():
+    '''
+    plays meditation soundtracks
+    (binural beats)
+    TODO: give this imputs from a config file
+
+    '''
+    soundpath='sounds/meditation_tracks/'
+    dili = os.listdir(soundpath)
+    print(dili)
+    sound = AudioSegment.from_file(soundpath+dili[1])
+
+    play(sound)
+
+from random import randint 
+
+def play_random_sound():
+    ''''
+    plays a random selection from the music/audiobooks in the directory:
+        sounds/music_n_audio_books/ 
+
+    add what you want to listen to here
+    '''
+    soundpath = 'sounds/music_n_audio_books/'
+    dili = os.listdir(soundpath)
+    r    = randint(0,len(dili))
+    print(dili)
+    audio_file = soundpath + dili[r]
+    print('==============================[selected audio]=================================')
+    print('lucky_number:',r)
+    print('lucky_file  :',audio_file)
+    sound = AudioSegment.from_file(audio_file) 
+    print('===============================================================================')
+
+    play(sound)
+
+#ACTIVATE 
+
+#if (__name__ == "__main__") :#and (thing == True):
+    # creating thread
+t1 = threading.Thread(target=the_main_show
+)#, args=(0,))
+t2 = threading.Thread(target=play_random_sound)#, args=(0,))
+
+# starting thread 1
+t1.start()
+# starting thread 2
+t2.start()
+
+# wait until thread 1 is completely executed
+t1.join()
+# wait until thread 2 is completely executed
+t2.join()
+
+
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXX -PART II - XXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# --- VERY CRUDE WAY TO MAKE IT WORK IN THE NEXT 5MINS ---
+# TODO:
+# - uncrude this!!
+
+
+# second part of routine
+from cuties.funk import pin_up
+def part_II():
+    '''
+    mean - lean quick & DIRTY routine... 
+    '''
+    say('Meditation 20min') 
+    for i in trange(60*20):
+
+        time.sleep(1)
+        pin_up
+    say('good job')
+    print('')
+    time.sleep(2)
+    say('priority time')
+    say('its time to do')
+    say('whatever thing is...')
+    say('THE MOST ')
+    say('IMPORTANT THING!')
+
+    for i in trange(60*60):
+        time.sleep(1)
+#if (__name__ == "__main__") :#and (thing == True):
+# creating thread
+t1 = threading.Thread(target=part_II)#, args=(0,))
+t2 = threading.Thread(target=play_sound)#, args=(0,))
+
+# starting thread 1
+t1.start()
+# starting thread 2
+t2.start()
+
+# wait until thread 1 is completely executed
+t1.join()
+# wait until thread 2 is completely executed
+t2.join()
+
+#play_sound()
+
+say(
+
+    'are you ready for part 2?'
+)
+time.sleep(3)
+print('\n \n \n \n *excite \n \n \n \n ')
+
+# second part of routine
+def part_II():
+    '''
+    mean - lean quick & DIRTY routine... 
+    '''
+    say('Meditation 20min') 
+    for i in trange(60*20):
+        time.sleep(1)
+    say('good job')
+    print('')
+    time.sleep(2)
+    say('priority time')
+    say('its time to do')
+    say('whatever thing is...')
+    say('THE MOST ')
+    say('IMPORTANT THING!')
+
+    for i in trange(60*60):
+        time.sleep(1)
+
+#part_II()
 
 sound = AudioSegment.from_mp3('ALARM_I_BEILIEVE.mp3')
-play(sound)
-#os.system('play Lagwagon_Lets_Talk_About_Feelings__02__Gun_In_Your_Hand.mp3')
+#play(sound)
+
+# The End
 
 
-'''
-
-
-
-### it iterates between 2 inputs until you type 'done' or 'DONE'
-
-#### > A. a task - str( user input )
-#### > B. how many minutes - int( )  you think  
-
-'''

@@ -1,9 +1,5 @@
-datetime 
-time
-os
 tqdm 
 pandas 
-warnings
 playsound
 pyttsx3
 pretty_errors
