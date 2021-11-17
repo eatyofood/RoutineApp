@@ -185,7 +185,7 @@ def schedual_loop():
             df = pd.DataFrame(thingli)
             print(df)
             # save the working list just in case
-            df.to_csv(lapath+'Last_List_Backup.csv')
+            df.to_csv(lapath+'CheckPoint.csv')
 
         elif loadrout == False:
             shedf = pd.DataFrame(thingli)
@@ -259,6 +259,7 @@ gotta_y = False
 while gotta_y == False:
 
     df = schedual_loop()
+    df.to_csv(lapath+'Last_List_Backup.csv')
     #print(df)
     yn = 'yup'#str(input('does this look good? type yup:'))
     # VOICE 
